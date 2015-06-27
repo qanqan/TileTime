@@ -1,0 +1,58 @@
+{
+    "appKeys": {
+        "box1bg": 1,
+        "box1fg": 2,
+        "box2bg": 3,
+        "box2fg": 4,
+        "box3bg": 5,
+        "box3fg": 6,
+        "box4bg": 7,
+        "box4fg": 8
+    },
+    "capabilities": [
+        ""
+    ],
+    "companyName": "twitter@lankamp.org",
+    "longName": "TileTime",
+    "projectType": "native",
+    "resources": {
+        "media": [
+            {
+                "file": "images/TileTime48.png",
+                "menuIcon": true,
+                "name": "TileTime48",
+                "type": "png"
+            },
+            {
+                "file": "fonts/dosis.bold.ttf",
+                "name": "dosis_bold_26",
+                "type": "font"
+            },
+            {
+                "file": "fonts/dosis.extrabold.ttf",
+                "name": "dosis_extrabold_60",
+                "type": "font"
+            },
+            {
+                "file": "fonts/gotham_bold_36.ttf",
+                "name": "gotham_bold_36",
+                "type": "font"
+            },
+            {
+                "file": "fonts/gotham_light_31.ttf",
+                "name": "gotham_light_31",
+                "type": "font"
+            }
+        ]
+    },
+    "sdkVersion": "3",
+    "shortName": "TileTime",
+    "targetPlatforms": [
+        "basalt"
+    ],
+    "uuid": "688249f2-ec7e-4b3d-9366-e6ad9602b755",
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": true
+    }
+}
