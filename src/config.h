@@ -14,7 +14,8 @@ typedef enum {
 	FN_MIN,
 	FN_SEC,
   FN_DAT,
-  FN_DOW
+  FN_DOW,
+  FN_EMPTY
 } BoxFunction;
 
 

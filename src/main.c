@@ -42,8 +42,6 @@ typedef struct {
 	TextLayer *currentLayer;
 	TextLayer *nextLayer;	
   int origin;
-  int border;
-  int buffersize;
 	PropertyAnimation *currentAnimation;
 	PropertyAnimation *nextAnimation;
 } Box;
@@ -168,9 +166,12 @@ static void animationStoppedHandler(struct Animation *animation, bool finished, 
 // Animate box
 static void makeAnimationsForLayers(Box* box, TextLayer* current, TextLayer* next)
 {
+  int from_location = layer_get_frame(text_layer_get_layer(current)).origin.x;
+  int to_location = layer_get_frame(text_layer_get_layer(next)).origin.x;
+  
 	GRect fromRect = layer_get_frame(text_layer_get_layer(next));
 	GRect toRect = fromRect;
-	toRect.origin.x = box->origin;
+	toRect.origin.x = from_location;
 	
 	box->nextAnimation = property_animation_create_layer_frame(text_layer_get_layer(next), &fromRect, &toRect);
 	animation_set_duration((Animation *)box->nextAnimation, 400);
@@ -179,7 +180,7 @@ static void makeAnimationsForLayers(Box* box, TextLayer* current, TextLayer* nex
 	
 	GRect fromRect2 = layer_get_frame(text_layer_get_layer(current));
 	GRect toRect2 = fromRect2;
-	toRect2.origin.x = box->border;
+	toRect2.origin.x = to_location;
 	
 	box->currentAnimation = property_animation_create_layer_frame(text_layer_get_layer(current), &fromRect2, &toRect2);
 	animation_set_duration((Animation *)box->currentAnimation, 400);
@@ -192,170 +193,127 @@ static void makeAnimationsForLayers(Box* box, TextLayer* current, TextLayer* nex
 	animation_schedule((Animation *)box->currentAnimation);
 }
 
+//Determine if te contents of the textbox has changed
+static bool must_update_box(char* current, char* new) {
+ 	if (memcmp(current, new, strlen(new)) != 0 || (strlen(new) == 0 && strlen(current) != 0)) return true;
+  return false;
+}
+
+//Determine if the currentlayer hasfocus on the watch
+static bool currentlayer_has_focus(Box* box) {
+  GRect rect = layer_get_frame(text_layer_get_layer(box->currentLayer));
+  if (rect.origin.x == box->origin) return true;
+  return false;
+}
+
+//Determine value of the box
+static char* box_value(BoxFunction fun, char* hourstr, char* minutestr, char* secondstr, char* datestr, char* dowstr) {
+  switch (fun) {
+    case 0: return hourstr;
+    case 1: return minutestr;
+    case 2: return secondstr;
+    case 3: return datestr;
+    case 4: return dowstr;
+    case 5: return " ";
+  }
+  return " ";
+}
+
 // Update the value of the boxes 
 static void update_box(Box* bbox, BoxFunction fun, char* hourstr, char* minutestr, char* secondstr, char* datestr, char* dowstr) {
-	TextLayer *next, *current;
-	char *currentStr,*value;
-  int buffer, origin, border;
-  GRect rect;
-  
+  bool hasfocus = currentlayer_has_focus(bbox);   
+	TextLayer* current = (hasfocus) ? bbox->currentLayer : bbox->nextLayer;
+  TextLayer* next = (hasfocus) ? bbox->nextLayer : bbox->currentLayer;
+  char* value = box_value(fun, hourstr, minutestr, secondstr, datestr, dowstr);   
+	char *currentStr;
+     
   //Update the box with the hours in it
   switch (fun) {
   case 0: 
     //Update the box with the hour value in it
-    value = hourstr;
-    origin = bbox->origin;
-    border = bbox->border;
-    buffer = bbox->buffersize;
-   	rect = layer_get_frame(text_layer_get_layer(bbox->currentLayer));
-  	currentStr = (rect.origin.x == origin) ? hour[0] : hour[1];
-  	if (memcmp(currentStr, value, strlen(value)) != 0 ||
-  		(strlen(value) == 0 && strlen(currentStr) != 0)) {
-  	  if (rect.origin.x == origin) {
-    	  current = bbox->currentLayer;
-        next = bbox->nextLayer;  
-        rect = layer_get_frame(text_layer_get_layer(next));
-        rect.origin.x = border;
-  	  	memset(hour[1], 0, buffer);
-  		  memcpy(hour[1], value, strlen(value));
-    		text_layer_set_text(next, hour[1]);
+    currentStr = (hasfocus) ? hour[0] : hour[1];
+    if (must_update_box(currentStr, value)) {
+      if (hasfocus) {
+        memset(hour[1], 0, HOUR_SIZE);
+        memcpy(hour[1], value, strlen(value));
+        text_layer_set_text(next, hour[1]);
       } else {
-        rect.origin.x = border;
-    	  next = bbox->currentLayer;
-        current = bbox->nextLayer;      
-        rect = layer_get_frame(text_layer_get_layer(next));
-        rect.origin.x = origin;
-    		memset(hour[0], 0, buffer);
-  	  	memcpy(hour[0], value, strlen(value));
-  		  text_layer_set_text(next, hour[0]);
+        memset(hour[0], 0, HOUR_SIZE);
+        memcpy(hour[0], value, strlen(value));
+        text_layer_set_text(next, hour[0]);
       }
-  	  makeAnimationsForLayers(bbox, current, next);
+      makeAnimationsForLayers(bbox, current, next);
     }
     return;
   case 1:
     //Update the box with the minute value in it
-    value = minutestr;
-    origin = bbox->origin;
-    border = bbox->border;
-    buffer = bbox->buffersize;
-   	rect = layer_get_frame(text_layer_get_layer(bbox->currentLayer));
-  	currentStr = (rect.origin.x == origin) ? minute[0] : minute[1];
-  	if (memcmp(currentStr, value, strlen(value)) != 0 ||
-  		(strlen(value) == 0 && strlen(currentStr) != 0)) {
-  	  if (rect.origin.x == origin) {
-    	  current = bbox->currentLayer;
-        next = bbox->nextLayer;  
-        rect = layer_get_frame(text_layer_get_layer(next));
-        rect.origin.x = border;
-  	  	memset(minute[1], 0, buffer);
-  		  memcpy(minute[1], value, strlen(value));
-    		text_layer_set_text(next, minute[1]);
+    currentStr = (hasfocus) ? minute[0] : minute[1];
+    if (must_update_box(currentStr, value)) {
+      if (hasfocus) {
+        memset(minute[1], 0, MINUTE_SIZE);
+        memcpy(minute[1], value, strlen(value));
+        text_layer_set_text(next, minute[1]);
       } else {
-        rect.origin.x = border;
-    	  next = bbox->currentLayer;
-        current = bbox->nextLayer;      
-        rect = layer_get_frame(text_layer_get_layer(next));
-        rect.origin.x = origin;
-    		memset(minute[0], 0, buffer);
-  	  	memcpy(minute[0], value, strlen(value));
-  		  text_layer_set_text(next, minute[0]);
+        memset(minute[0], 0, MINUTE_SIZE);
+        memcpy(minute[0], value, strlen(value));
+        text_layer_set_text(next, minute[0]);
       }
-  	  makeAnimationsForLayers(bbox, current, next);
+      makeAnimationsForLayers(bbox, current, next);
     }
     return;
   case 2:
     //Update the box with the seconds value in it
-    value = secondstr;
-    origin = bbox->origin;
-    border = bbox->border;
-    buffer = bbox->buffersize;
-   	rect = layer_get_frame(text_layer_get_layer(bbox->currentLayer));
-  	currentStr = (rect.origin.x == origin) ? seconde[0] : seconde[1];
-  	if (memcmp(currentStr, value, strlen(value)) != 0 ||
-  		(strlen(value) == 0 && strlen(currentStr) != 0)) {
-  	  if (rect.origin.x == origin) {
-    	  current = bbox->currentLayer;
-        next = bbox->nextLayer;  
-        rect = layer_get_frame(text_layer_get_layer(next));
-        rect.origin.x = border;
-  	  	memset(seconde[1], 0, buffer);
-  		  memcpy(seconde[1], value, strlen(value));
-    		text_layer_set_text(next, seconde[1]);
+    currentStr = (hasfocus) ? seconde[0] : seconde[1];
+    if (must_update_box(currentStr, value)) {
+      if (hasfocus) {
+        memset(seconde[1], 0, SEC_SIZE);
+        memcpy(seconde[1], value, strlen(value));
+        text_layer_set_text(next, seconde[1]);
       } else {
-        rect.origin.x = border;
-    	  next = bbox->currentLayer;
-        current = bbox->nextLayer;      
-        rect = layer_get_frame(text_layer_get_layer(next));
-        rect.origin.x = origin;
-    		memset(seconde[0], 0, buffer);
-  	  	memcpy(seconde[0], value, strlen(value));
-  		  text_layer_set_text(next, seconde[0]);
+        memset(seconde[0], 0, SEC_SIZE);
+        memcpy(seconde[0], value, strlen(value));
+        text_layer_set_text(next, seconde[0]);
       }
-  	  makeAnimationsForLayers(bbox, current, next);
+      makeAnimationsForLayers(bbox, current, next);
     }
     return;
   case 3:
     //Update the box with the date in it
-    value = datestr;
-    origin = bbox->origin;
-    border = bbox->border;
-    buffer = bbox->buffersize;
-   	rect = layer_get_frame(text_layer_get_layer(bbox->currentLayer));
-  	currentStr = (rect.origin.x == origin) ? date[0] : date[1];
-  	if (memcmp(currentStr, value, strlen(value)) != 0 ||
-  		(strlen(value) == 0 && strlen(currentStr) != 0)) {
-  	  if (rect.origin.x == origin) {
-    	  current = bbox->currentLayer;
-        next = bbox->nextLayer;  
-        rect = layer_get_frame(text_layer_get_layer(next));
-        rect.origin.x = border;
-  	  	memset(date[1], 0, buffer);
-  		  memcpy(date[1], value, strlen(value));
-    		text_layer_set_text(next, date[1]);
+    currentStr = (hasfocus) ? date[0] : date[1];
+    if (must_update_box(currentStr, value)) {
+      if (hasfocus) {
+        memset(date[1], 0, DATE_SIZE);
+        memcpy(date[1], value, strlen(value));
+        text_layer_set_text(next, date[1]);
       } else {
-        rect.origin.x = border;
-    	  next = bbox->currentLayer;
-        current = bbox->nextLayer;      
-        rect = layer_get_frame(text_layer_get_layer(next));
-        rect.origin.x = origin;
-    		memset(date[0], 0, buffer);
-  	  	memcpy(date[0], value, strlen(value));
-  		  text_layer_set_text(next, date[0]);
+        memset(date[0], 0, DATE_SIZE);
+        memcpy(date[0], value, strlen(value));
+        text_layer_set_text(next, date[0]);
       }
-  	  makeAnimationsForLayers(bbox, current, next);
+      makeAnimationsForLayers(bbox, current, next);
     }
     return;
   case 4:
     //Update the box with the day of the week in it
-    value = dowstr;
-    origin = bbox->origin;
-    border = bbox->border;
-    buffer = bbox->buffersize;
-   	rect = layer_get_frame(text_layer_get_layer(bbox->currentLayer));
-  	currentStr = (rect.origin.x == origin) ? dow[0] : dow[1];
-  	if (memcmp(currentStr, value, strlen(value)) != 0 ||
-  		(strlen(value) == 0 && strlen(currentStr) != 0)) {
-  	  if (rect.origin.x == origin) {
-    	  current = bbox->currentLayer;
-        next = bbox->nextLayer;  
-        rect = layer_get_frame(text_layer_get_layer(next));
-        rect.origin.x = border;
-  	  	memset(dow[1], 0, buffer);
-  		  memcpy(dow[1], value, strlen(value));
-    		text_layer_set_text(next, dow[1]);
+    currentStr = (hasfocus) ? dow[0] : dow[1];
+    if (must_update_box(currentStr, value)) {
+      if (hasfocus) {
+        memset(dow[1], 0, DOW_SIZE);
+        memcpy(dow[1], value, strlen(value));
+        text_layer_set_text(next, dow[1]);
       } else {
-        rect.origin.x = border;
-    	  next = bbox->currentLayer;
-        current = bbox->nextLayer;      
-        rect = layer_get_frame(text_layer_get_layer(next));
-        rect.origin.x = origin;
-    		memset(dow[0], 0, buffer);
-  	  	memcpy(dow[0], value, strlen(value));
-  		  text_layer_set_text(next, dow[0]);
+        memset(dow[0], 0, DOW_SIZE);
+        memcpy(dow[0], value, strlen(value));
+        text_layer_set_text(next, dow[0]);
       }
-  	  makeAnimationsForLayers(bbox, current, next);
+      makeAnimationsForLayers(bbox, current, next);
     }
     return;
+  case 5:
+    //Empty the box
+    text_layer_set_text(current, " ");
+    text_layer_set_text(next, " ");
+    makeAnimationsForLayers(bbox, current, next);
   }
 }
 
@@ -376,29 +334,14 @@ static void update_time(struct tm *t) {
   update_box(&box3, getBox3(), hourstr, minutestr, secondstr, datestr, dowstr);
   update_box(&box4, getBox4(), hourstr, minutestr, secondstr, datestr, dowstr);
 }
-
-// Initialise the value of the box
-static void initial_update_box(Box* bbox, BoxFunction fun, char* hourstr, char* minutestr, char* secondstr, char* datestr, char* dowstr) {
-  switch (fun) {
-    case 0: text_layer_set_text(bbox->currentLayer, hourstr); return;
-    case 1: text_layer_set_text(bbox->currentLayer, minutestr); return;
-    case 2: text_layer_set_text(bbox->currentLayer, secondstr); return;
-    case 3: text_layer_set_text(bbox->currentLayer, datestr); return;
-    case 4: text_layer_set_text(bbox->currentLayer, dowstr); return;    
-  }
-}
-                               
+                              
 //Show the initial time after starting the app and after changing the settings.
 static void initial_update_time(struct tm *t) {
-  // Determine the time information 
   get_time_parameters(t,hour[0],minute[0],seconde[0],date[0],dow[0]);
-
-  // Display the time on the TextLayer
-  // Update screen if nessecary
-  initial_update_box(&box1, getBox1(), hour[0],minute[0],seconde[0],date[0],dow[0]);
-  initial_update_box(&box2, getBox2(), hour[0],minute[0],seconde[0],date[0],dow[0]);
-  initial_update_box(&box3, getBox3(), hour[0],minute[0],seconde[0],date[0],dow[0]);
-  initial_update_box(&box4, getBox4(), hour[0],minute[0],seconde[0],date[0],dow[0]);
+  text_layer_set_text(box1.currentLayer, box_value(getBox1(),hour[0],minute[0],seconde[0],date[0],dow[0]));
+  text_layer_set_text(box2.currentLayer, box_value(getBox2(),hour[0],minute[0],seconde[0],date[0],dow[0]));
+  text_layer_set_text(box3.currentLayer, box_value(getBox3(),hour[0],minute[0],seconde[0],date[0],dow[0]));
+  text_layer_set_text(box4.currentLayer, box_value(getBox4(),hour[0],minute[0],seconde[0],date[0],dow[0]));
 }
 
 //Time handler
@@ -423,7 +366,6 @@ static void set_preferences(Box* box, BoxFunction fun, bool big, GColor kleur) {
   text_layer_set_text_color(box->nextLayer,kleur);
   switch (fun) {
     case 0: 
-      box->buffersize = HOUR_SIZE;
       if (big) {
         text_layer_set_font(box->currentLayer,s_ext_font);  
         text_layer_set_font(box->nextLayer,s_ext_font);  
@@ -433,7 +375,6 @@ static void set_preferences(Box* box, BoxFunction fun, bool big, GColor kleur) {
       }
       return;
     case 1: 
-      box->buffersize = MINUTE_SIZE;
       if (big) {
         text_layer_set_font(box->currentLayer,s_ext_font);  
         text_layer_set_font(box->nextLayer,s_ext_font);  
@@ -443,7 +384,6 @@ static void set_preferences(Box* box, BoxFunction fun, bool big, GColor kleur) {
       }
       return;
     case 2: 
-      box->buffersize = SEC_SIZE;
       if (big) {
         text_layer_set_font(box->currentLayer,s_ext_font);  
         text_layer_set_font(box->nextLayer,s_ext_font);  
@@ -453,7 +393,6 @@ static void set_preferences(Box* box, BoxFunction fun, bool big, GColor kleur) {
       }
       return;
     case 3: 
-      box->buffersize = DATE_SIZE;
       if (big) {
         text_layer_set_font(box->currentLayer,s_date_big);  
         text_layer_set_font(box->nextLayer,s_date_big);  
@@ -463,7 +402,6 @@ static void set_preferences(Box* box, BoxFunction fun, bool big, GColor kleur) {
       }
       return;
     case 4: 
-      box->buffersize = DOW_SIZE;
       if (getLanguage()==1) {
         if (big) {
           text_layer_set_font(box->currentLayer,s_dow_uk_big);  
@@ -491,6 +429,8 @@ static void set_preferences(Box* box, BoxFunction fun, bool big, GColor kleur) {
           }
         }
       }
+      return;
+    case 5: return;
   } 
 }
 
@@ -519,33 +459,29 @@ static void main_window_load(Window *window) {
 
   // Create box1
   box1.origin = 0;
-  box1.border = -72;
 	box1.currentLayer = text_layer_create(GRect(box1.origin,4,72,80));
-	box1.nextLayer = text_layer_create(GRect(box1.border,4,72,80));
+	box1.nextLayer = text_layer_create(GRect(-72,4,72,80));
   default_preferences(&box1);
   set_preferences(&box1,getBox1(),getBig1(),GColorFromHEXSTR(getTxtbox1()));
   
   // Create box2
   box2.origin = 72;
-  box2.border = 144;
 	box2.currentLayer = text_layer_create(GRect(box2.origin,4,72,80));
-	box2.nextLayer = text_layer_create(GRect(box2.border,4,72,80));
+	box2.nextLayer = text_layer_create(GRect(144,4,72,80));
   default_preferences(&box2);
   set_preferences(&box2,getBox2(),getBig2(),GColorFromHEXSTR(getTxtbox2()));
 
   // Create box3
   box3.origin = 0;
-  box3.border = -72;
 	box3.currentLayer = text_layer_create(GRect(box3.origin,88,72,80));
-	box3.nextLayer = text_layer_create(GRect(box3.border,88,72,80));
+	box3.nextLayer = text_layer_create(GRect(-72,88,72,80));
   default_preferences(&box3);
   set_preferences(&box3,getBox3(),getBig3(),GColorFromHEXSTR(getTxtbox3()));
 
   // Create box4
   box4.origin = 72;
-  box4.border = 144;
 	box4.currentLayer = text_layer_create(GRect(box4.origin,88,72,80));
-	box4.nextLayer = text_layer_create(GRect(box4.border,88,72,80));
+	box4.nextLayer = text_layer_create(GRect(144,88,72,80));
   default_preferences(&box4);
   set_preferences(&box4,getBox4(),getBig4(),GColorFromHEXSTR(getTxtbox4()));
 
@@ -614,6 +550,9 @@ static void init() {
   s_date_small = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_dosis_bold_23));
   s_date_big = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_dosis_bold_26));
 
+  //init the configscreen
+  config_init();
+
   // Create main Window element and assign to pointer
   s_main_window = window_create();
   // APP_LOG(APP_LOG_LEVEL_INFO, "Main window created.");
@@ -627,11 +566,6 @@ static void init() {
   // Show the Window on the watch, with animated=true
   window_stack_push(s_main_window, true);
 
-  // Set background color of window
-  //window_set_background_color(s_main_window, GColorRed );
-  
-  //init the configscreen
-  config_init();
   app_message_register_inbox_received(in_received_handler);
   btConnected = bluetooth_connection_service_peek();
   bluetooth_connection_service_subscribe(bluetooth_connection_handler);
