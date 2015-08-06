@@ -10,6 +10,7 @@ static bool btConnected = false;
 #define DAY_SIZE 3
 #define DATE_SIZE 24
 #define DOW_SIZE 8
+#define DATEDOW_SIZE 30
 #define HOUR_SIZE 3
 #define MINUTE_SIZE 3
 #define SEC_SIZE 3
@@ -78,6 +79,7 @@ static char hour[2][HOUR_SIZE];
 static char minute[2][MINUTE_SIZE];
 static char seconde[2][SEC_SIZE];
 static char dow[2][DOW_SIZE];
+static char datedow[2][DATEDOW_SIZE];
 static char date[2][DATE_SIZE];
 
 //htoi converts a hex string to an integer
@@ -116,7 +118,7 @@ GColor GColorFromHEXSTR(char const* hexstring) {
 }
 
 //Get the different time values to be displayed
-static void get_time_parameters(struct tm* t, char* hourstr, char* minutestr, char* secondstr, char* datestr, char* dowstr) {
+static void get_time_parameters(struct tm* t, char* hourstr, char* minutestr, char* secondstr, char* datestr, char* dowstr, char* datedowstr) {
   // Determine the time information 
   int hours = t->tm_hour;
   int minutes = t->tm_min;
@@ -132,6 +134,7 @@ static void get_time_parameters(struct tm* t, char* hourstr, char* minutestr, ch
 	memset(minutestr, 0, MINUTE_SIZE);
 	memset(secondstr, 0, SEC_SIZE);
 	memset(datestr, 0, DATE_SIZE);
+	memset(datedowstr, 0, DATEDOW_SIZE);
 	memset(dowstr, 0, DOW_SIZE);
   
   if (!getUur()) {
@@ -151,6 +154,7 @@ static void get_time_parameters(struct tm* t, char* hourstr, char* minutestr, ch
   snprintf(minutestr, MINUTE_SIZE, "%02d",minutes);
   snprintf(secondstr, SEC_SIZE, "%02d",seconds);
   snprintf(datestr, DATE_SIZE, "%d\n%s\n%d", days,MONS[taal][months],year);
+  snprintf(datedowstr, DATEDOW_SIZE, "%s %d\n%s\n%d",DOWS[taal][dow],days,MONS[taal][months],year);
 }
 
 
@@ -207,7 +211,7 @@ static bool currentlayer_has_focus(Box* box) {
 }
 
 //Determine value of the box
-static char* box_value(BoxFunction fun, char* hourstr, char* minutestr, char* secondstr, char* datestr, char* dowstr) {
+static char* box_value(BoxFunction fun, char* hourstr, char* minutestr, char* secondstr, char* datestr, char* dowstr, char* datedowstr) {
   switch (fun) {
     case 0: return hourstr;
     case 1: return minutestr;
@@ -215,16 +219,17 @@ static char* box_value(BoxFunction fun, char* hourstr, char* minutestr, char* se
     case 3: return datestr;
     case 4: return dowstr;
     case 5: return " ";
+    case 6: return datedowstr;
   }
   return " ";
 }
 
 // Update the value of the boxes 
-static void update_box(Box* bbox, BoxFunction fun, char* hourstr, char* minutestr, char* secondstr, char* datestr, char* dowstr) {
+static void update_box(Box* bbox, BoxFunction fun, char* hourstr, char* minutestr, char* secondstr, char* datestr, char* dowstr, char* datedowstr) {
   bool hasfocus = currentlayer_has_focus(bbox);   
 	TextLayer* current = (hasfocus) ? bbox->currentLayer : bbox->nextLayer;
   TextLayer* next = (hasfocus) ? bbox->nextLayer : bbox->currentLayer;
-  char* value = box_value(fun, hourstr, minutestr, secondstr, datestr, dowstr);   
+  char* value = box_value(fun, hourstr, minutestr, secondstr, datestr, dowstr, datedowstr);   
 	char *currentStr;
      
   //Update the box with the hours in it
@@ -314,6 +319,23 @@ static void update_box(Box* bbox, BoxFunction fun, char* hourstr, char* minutest
     text_layer_set_text(current, " ");
     text_layer_set_text(next, " ");
     makeAnimationsForLayers(bbox, current, next);
+    return;
+  case 6:
+    //Update the box with the date+dow in it
+    currentStr = (hasfocus) ? datedow[0] : datedow[1];
+    if (must_update_box(currentStr, value)) {
+      if (hasfocus) {
+        memset(datedow[1], 0, DATEDOW_SIZE);
+        memcpy(datedow[1], value, strlen(value));
+        text_layer_set_text(next, datedow[1]);
+      } else {
+        memset(datedow[0], 0, DATEDOW_SIZE);
+        memcpy(datedow[0], value, strlen(value));
+        text_layer_set_text(next, datedow[0]);
+      }
+      makeAnimationsForLayers(bbox, current, next);
+    }
+    return;
   }
 }
 
@@ -323,25 +345,26 @@ static void update_time(struct tm *t) {
   char minutestr[MINUTE_SIZE];
   char secondstr[SEC_SIZE];
   char datestr[DATE_SIZE];  
+  char datedowstr[DATEDOW_SIZE];
   char dowstr[DOW_SIZE];
 
   // Determine the time information 
-  get_time_parameters(t,hourstr,minutestr,secondstr,datestr,dowstr);
+  get_time_parameters(t,hourstr,minutestr,secondstr,datestr,dowstr,datedowstr);
   
   // Update screen if nessecary
-  update_box(&box1, getBox1(), hourstr, minutestr, secondstr, datestr, dowstr);
-  update_box(&box2, getBox2(), hourstr, minutestr, secondstr, datestr, dowstr);
-  update_box(&box3, getBox3(), hourstr, minutestr, secondstr, datestr, dowstr);
-  update_box(&box4, getBox4(), hourstr, minutestr, secondstr, datestr, dowstr);
+  update_box(&box1, getBox1(), hourstr, minutestr, secondstr, datestr, dowstr,datedowstr);
+  update_box(&box2, getBox2(), hourstr, minutestr, secondstr, datestr, dowstr,datedowstr);
+  update_box(&box3, getBox3(), hourstr, minutestr, secondstr, datestr, dowstr,datedowstr);
+  update_box(&box4, getBox4(), hourstr, minutestr, secondstr, datestr, dowstr,datedowstr);
 }
                               
 //Show the initial time after starting the app and after changing the settings.
 static void initial_update_time(struct tm *t) {
-  get_time_parameters(t,hour[0],minute[0],seconde[0],date[0],dow[0]);
-  text_layer_set_text(box1.currentLayer, box_value(getBox1(),hour[0],minute[0],seconde[0],date[0],dow[0]));
-  text_layer_set_text(box2.currentLayer, box_value(getBox2(),hour[0],minute[0],seconde[0],date[0],dow[0]));
-  text_layer_set_text(box3.currentLayer, box_value(getBox3(),hour[0],minute[0],seconde[0],date[0],dow[0]));
-  text_layer_set_text(box4.currentLayer, box_value(getBox4(),hour[0],minute[0],seconde[0],date[0],dow[0]));
+  get_time_parameters(t,hour[0],minute[0],seconde[0],date[0],dow[0],datedow[0]);
+  text_layer_set_text(box1.currentLayer, box_value(getBox1(),hour[0],minute[0],seconde[0],date[0],dow[0],datedow[0]));
+  text_layer_set_text(box2.currentLayer, box_value(getBox2(),hour[0],minute[0],seconde[0],date[0],dow[0],datedow[0]));
+  text_layer_set_text(box3.currentLayer, box_value(getBox3(),hour[0],minute[0],seconde[0],date[0],dow[0],datedow[0]));
+  text_layer_set_text(box4.currentLayer, box_value(getBox4(),hour[0],minute[0],seconde[0],date[0],dow[0],datedow[0]));
 }
 
 //Time handler
@@ -431,6 +454,15 @@ static void set_preferences(Box* box, BoxFunction fun, bool big, GColor kleur) {
       }
       return;
     case 5: return;
+    case 6: 
+      if (big) {
+        text_layer_set_font(box->currentLayer,s_date_big);  
+        text_layer_set_font(box->nextLayer,s_date_big);  
+      } else {
+        text_layer_set_font(box->currentLayer,s_date_small);  
+        text_layer_set_font(box->nextLayer,s_date_small);          
+      }
+      return;
   } 
 }
 
