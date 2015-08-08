@@ -1,5 +1,28 @@
 var configSettings = null;
 
+function toconfig(key, value) {
+  if (key.substring(0,3) == "col") {
+    return "0x" + value;
+  }
+  if (key.substring(0,3) == "txt") {
+    return "0x" + value;
+  }
+  return value;
+}
+
+function fromconfig(key, value) {
+  if (key === '') { 
+    return value; 
+  }
+  if (key.substring(0,3) == "col") {
+    return value.substring(2);
+  }
+  if (key.substring(0,3) == "txt") {
+    return value.substring(2);
+  }
+  return value;
+}
+
 Pebble.addEventListener("ready", function(e) {
   
   try {
@@ -15,11 +38,11 @@ Pebble.addEventListener("ready", function(e) {
 });
 
 Pebble.addEventListener("showConfiguration", function (e) {
-  var url = "http://tiletime.lankamp.org:8111/config.html?";
+  var url = "http://tiletime.lankamp.org:8111/template.html?";
 
   for (var key in configSettings) {
     if (configSettings.hasOwnProperty(key)) {
-      url += encodeURIComponent(key) + "=" + encodeURIComponent(configSettings[key]) + "&";
+      url += encodeURIComponent(key) + "=" + encodeURIComponent(toconfig(key,configSettings[key])) + "&";
     }
   }
 
@@ -32,7 +55,7 @@ Pebble.addEventListener("webviewclosed", function(e) {
   
     if ((typeof e.response === 'string') && (e.response.length > 0)) {
         var newSettings = decodeURIComponent(e.response);
-        configSettings = JSON.parse(newSettings);
+        configSettings = JSON.parse(newSettings,fromconfig);
 
         localStorage['TileTime'] = newSettings;
         MessageQueue.sendAppMessage(configSettings);
