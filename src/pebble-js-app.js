@@ -2,7 +2,7 @@ var configSettings = null;
 
 Pebble.addEventListener("ready", function(e) {
 	console.log('PebbleKit JS ready');
-  Pebble.showSimpleNotificationOnPebble("TileTime", "Watchface has loaded");
+  //Pebble.showSimpleNotificationOnPebble("TileTime", "Watchface has loaded");
 });
 
 Pebble.addEventListener("showConfiguration", function (e) {
@@ -42,6 +42,13 @@ Pebble.addEventListener("webviewclosed", function(e) {
           console.log('Send succesful!');
       }, function() {
           console.log('Send failed!');
+          var lang = parseInt(configData.language);
+          if (lang == 0) {
+            Pebble.showSimpleNotificationOnPebble("TileTime", "Het ontvangen van instellingen van de telefoon is mislukt!");
+          } else {
+            Pebble.showSimpleNotificationOnPebble("TileTime", "Receiving setting from phone failed!");
+            Pebble.show
+          }
       });
     }
   } else {
