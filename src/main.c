@@ -82,41 +82,6 @@ static char dow[2][DOW_SIZE];
 static char datedow[2][DATEDOW_SIZE];
 static char date[2][DATE_SIZE];
 
-//htoi converts a hex string to an integer
-int htoi(const char *s, unsigned int *res) {
-  if ('0' == s[0] && ('x' == s[1] || 'X' == s[1]))
-  s += 2;
-  int c;
-  unsigned int rc;
-  for (rc = 0; '\0' != (c = *s); s++) {
-    if ( c >= 'a' && c <= 'f') {
-      c = c - 'a' + 10;
-    } else if (c >= 'A' && c <= 'F') {
-      c = c - 'A' + 10;
-    } else if (c >= '0' && c <= '9') {
-      c = c - '0';
-    } else {
-      return -1;
-    }
-    rc *= 16;
-    rc += (unsigned int) c;
-  }
-  *res = rc;
-  return 0;
-}
-
-//GColorfromHEXSTR converts an hexstring to a GColor value.
-GColor GColorFromHEXSTR(char const* hexstring) {
-  unsigned int x;
-  if (0 == htoi(hexstring,&x)) {
-    unsigned int red = (x & 0xff0000) >> 16;
-    unsigned int green = (x & 0x00ff00) >> 8;
-    unsigned int blue = (x & 0x0000ff) >> 0;
-    return GColorFromRGB(red,green,blue);
-  }
-  return GColorClear;
-}
-
 //Get the different time values to be displayed
 static void get_time_parameters(struct tm* t, char* hourstr, char* minutestr, char* secondstr, char* datestr, char* dowstr, char* datedowstr) {
   // Determine the time information 
@@ -137,7 +102,7 @@ static void get_time_parameters(struct tm* t, char* hourstr, char* minutestr, ch
 	memset(datedowstr, 0, DATEDOW_SIZE);
 	memset(dowstr, 0, DOW_SIZE);
   
-  if (!getUur()) {
+  if (!getTijd()) {
     if (hours>12 && hours < 24) {
       hours = hours - 12; 
       snprintf(dowstr, DOW_SIZE, "%s pm",DOWS[taal][dow]);    
@@ -211,7 +176,7 @@ static bool currentlayer_has_focus(Box* box) {
 }
 
 //Determine value of the box
-static char* box_value(BoxFunction fun, char* hourstr, char* minutestr, char* secondstr, char* datestr, char* dowstr, char* datedowstr) {
+static char* box_value(int fun, char* hourstr, char* minutestr, char* secondstr, char* datestr, char* dowstr, char* datedowstr) {
   switch (fun) {
     case 0: return hourstr;
     case 1: return minutestr;
@@ -225,7 +190,7 @@ static char* box_value(BoxFunction fun, char* hourstr, char* minutestr, char* se
 }
 
 // Update the value of the boxes 
-static void update_box(Box* bbox, BoxFunction fun, char* hourstr, char* minutestr, char* secondstr, char* datestr, char* dowstr, char* datedowstr) {
+static void update_box(Box* bbox, int fun, char* hourstr, char* minutestr, char* secondstr, char* datestr, char* dowstr, char* datedowstr) {
   bool hasfocus = currentlayer_has_focus(bbox);   
 	TextLayer* current = (hasfocus) ? bbox->currentLayer : bbox->nextLayer;
   TextLayer* next = (hasfocus) ? bbox->nextLayer : bbox->currentLayer;
@@ -384,7 +349,7 @@ static void default_preferences(Box* box) {
 }
 
 //Set the specific settings for a box given the function, the font size and the color
-static void set_preferences(Box* box, BoxFunction fun, bool big, GColor kleur) {
+static void set_preferences(Box* box, int fun, bool big, GColor kleur) {
   text_layer_set_text_color(box->currentLayer,kleur);
   text_layer_set_text_color(box->nextLayer,kleur);
   switch (fun) {
@@ -435,7 +400,7 @@ static void set_preferences(Box* box, BoxFunction fun, bool big, GColor kleur) {
         }
       } else {
         if (big) {
-          if (getUur()) {
+          if (getTijd()) {
             text_layer_set_font(box->currentLayer,s_dow_ext);  
             text_layer_set_font(box->nextLayer,s_dow_ext);  
           } else {
@@ -443,7 +408,7 @@ static void set_preferences(Box* box, BoxFunction fun, bool big, GColor kleur) {
             text_layer_set_font(box->nextLayer,s_dow_big_pm);              
           }
         } else {
-          if (getUur()) {
+          if (getTijd()) {
             text_layer_set_font(box->currentLayer,s_dow_big);  
             text_layer_set_font(box->nextLayer,s_dow_big);              
           } else {
@@ -478,10 +443,10 @@ static void main_window_load(Window *window) {
   s_background_layer4 = text_layer_create(GRect(72,84,72,84));
 
   // Define the four backgrounds of the four boxes
-  text_layer_set_background_color(s_background_layer1,GColorFromHEXSTR(getColbox1()));
-  text_layer_set_background_color(s_background_layer2,GColorFromHEXSTR(getColbox2()));
-  text_layer_set_background_color(s_background_layer3,GColorFromHEXSTR(getColbox3()));
-  text_layer_set_background_color(s_background_layer4,GColorFromHEXSTR(getColbox4()));
+  text_layer_set_background_color(s_background_layer1,getColorbox1());
+  text_layer_set_background_color(s_background_layer2,getColorbox2());
+  text_layer_set_background_color(s_background_layer3,getColorbox3());
+  text_layer_set_background_color(s_background_layer4,getColorbox4());
   
   // Add the backgrounds to the window
   layer_add_child(window_layer, text_layer_get_layer(s_background_layer1));
@@ -494,28 +459,28 @@ static void main_window_load(Window *window) {
 	box1.currentLayer = text_layer_create(GRect(box1.origin,4,72,80));
 	box1.nextLayer = text_layer_create(GRect(-72,4,72,80));
   default_preferences(&box1);
-  set_preferences(&box1,getBox1(),getBig1(),GColorFromHEXSTR(getTxtbox1()));
+  set_preferences(&box1,getBox1(),getBig1(),getTxtcolorbox1());
   
   // Create box2
   box2.origin = 72;
 	box2.currentLayer = text_layer_create(GRect(box2.origin,4,72,80));
 	box2.nextLayer = text_layer_create(GRect(144,4,72,80));
   default_preferences(&box2);
-  set_preferences(&box2,getBox2(),getBig2(),GColorFromHEXSTR(getTxtbox2()));
+  set_preferences(&box2,getBox2(),getBig2(),getTxtcolorbox2());
 
   // Create box3
   box3.origin = 0;
 	box3.currentLayer = text_layer_create(GRect(box3.origin,88,72,80));
 	box3.nextLayer = text_layer_create(GRect(-72,88,72,80));
   default_preferences(&box3);
-  set_preferences(&box3,getBox3(),getBig3(),GColorFromHEXSTR(getTxtbox3()));
+  set_preferences(&box3,getBox3(),getBig3(),getTxtcolorbox3());
 
   // Create box4
   box4.origin = 72;
 	box4.currentLayer = text_layer_create(GRect(box4.origin,88,72,80));
 	box4.nextLayer = text_layer_create(GRect(144,88,72,80));
   default_preferences(&box4);
-  set_preferences(&box4,getBox4(),getBig4(),GColorFromHEXSTR(getTxtbox4()));
+  set_preferences(&box4,getBox4(),getBig4(),getTxtcolorbox4());
 
   // Add the four boxes to the window
 	layer_add_child(window_layer, text_layer_get_layer(box1.currentLayer));
@@ -549,14 +514,14 @@ static void in_received_handler(DictionaryIterator *iter, void *context) {
   // call autoconf_in_received_handler
 	config_in_received_handler(iter, context);
 
-  text_layer_set_background_color(s_background_layer1,GColorFromHEXSTR(getColbox1()));
-  text_layer_set_background_color(s_background_layer2,GColorFromHEXSTR(getColbox2()));
-  text_layer_set_background_color(s_background_layer3,GColorFromHEXSTR(getColbox3()));
-  text_layer_set_background_color(s_background_layer4,GColorFromHEXSTR(getColbox4()));
-  set_preferences(&box1,getBox1(),getBig1(),GColorFromHEXSTR(getTxtbox1()));
-  set_preferences(&box2,getBox2(),getBig2(),GColorFromHEXSTR(getTxtbox2()));
-  set_preferences(&box3,getBox3(),getBig3(),GColorFromHEXSTR(getTxtbox3()));
-  set_preferences(&box4,getBox4(),getBig4(),GColorFromHEXSTR(getTxtbox4()));
+  text_layer_set_background_color(s_background_layer1,getColorbox1());
+  text_layer_set_background_color(s_background_layer2,getColorbox2());
+  text_layer_set_background_color(s_background_layer3,getColorbox3());
+  text_layer_set_background_color(s_background_layer4,getColorbox4());
+  set_preferences(&box1,getBox1(),getBig1(),getTxtcolorbox1());
+  set_preferences(&box2,getBox2(),getBig2(),getTxtcolorbox2());
+  set_preferences(&box3,getBox3(),getBig3(),getTxtcolorbox3());
+  set_preferences(&box4,getBox4(),getBig4(),getTxtcolorbox4());
 
   time_t now = time(NULL);
   struct tm *t = localtime(&now);
@@ -582,12 +547,11 @@ static void init() {
   s_date_small = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_dosis_bold_23));
   s_date_big = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_dosis_bold_26));
 
-  //init the configscreen
-  config_init();
-
   // Create main Window element and assign to pointer
   s_main_window = window_create();
   // APP_LOG(APP_LOG_LEVEL_INFO, "Main window created.");
+
+  config_init();
 
   // Set handlers to manage the elements inside the Window
   window_set_window_handlers(s_main_window, (WindowHandlers) {
@@ -599,6 +563,7 @@ static void init() {
   window_stack_push(s_main_window, true);
 
   app_message_register_inbox_received(in_received_handler);
+	app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
   btConnected = bluetooth_connection_service_peek();
   bluetooth_connection_service_subscribe(bluetooth_connection_handler);
 
@@ -614,7 +579,6 @@ static void init() {
 // Cleanup
 static void deinit() {
   // Stop config screen
-  config_deinit();
   bluetooth_connection_service_unsubscribe();
 
   // Destroy Window

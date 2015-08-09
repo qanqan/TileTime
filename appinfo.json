@@ -1,29 +1,30 @@
 {
     "appKeys": {
-        "big1": 14,
-        "big2": 15,
-        "big3": 16,
-        "big4": 17,
-        "box1": 10,
-        "box2": 11,
-        "box3": 12,
-        "box4": 13,
-        "colbox1": 1,
-        "colbox2": 2,
-        "colbox3": 3,
-        "colbox4": 4,
-        "language": 0,
-        "txtbox1": 5,
-        "txtbox2": 6,
-        "txtbox3": 7,
-        "txtbox4": 8,
-        "uur": 9
+        "big1": 34,
+        "big2": 35,
+        "big3": 36,
+        "big4": 37,
+        "box1": 30,
+        "box2": 31,
+        "box3": 32,
+        "box4": 33,
+        "colbox1": 21,
+        "colbox2": 22,
+        "colbox3": 23,
+        "colbox4": 24,
+        "language": 20,
+        "tijd": 29,
+        "txtbox1": 25,
+        "txtbox2": 26,
+        "txtbox3": 27,
+        "txtbox4": 28,
+        "version": 19
     },
     "capabilities": [
         "configurable"
     ],
     "companyName": "twitter@lankamp.org",
-    "longName": "TileTime",
+    "longName": "TileTime NEW",
     "projectType": "native",
     "resources": {
         "media": [
@@ -86,12 +87,12 @@
         ]
     },
     "sdkVersion": "3",
-    "shortName": "TileTime",
+    "shortName": "TileTime NEW",
     "targetPlatforms": [
         "basalt"
     ],
-    "uuid": "688249f2-ec7e-4b3d-9366-e6ad9602b755",
-    "versionLabel": "2.5",
+    "uuid": "a8614a72-2527-4e28-be67-127f425c5cf8",
+    "versionLabel": "2.6",
     "watchapp": {
         "watchface": true
     }

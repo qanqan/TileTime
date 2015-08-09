@@ -1,6 +1,26 @@
 #include <pebble.h>
 
-typedef enum {
+#define VERSION_PKEY 19
+#define LANGUAGE_PKEY 20
+#define COLBOX1_PKEY 21
+#define COLBOX2_PKEY 22
+#define COLBOX3_PKEY 23
+#define COLBOX4_PKEY 24
+#define TXTBOX1_PKEY 25
+#define TXTBOX2_PKEY 26
+#define TXTBOX3_PKEY 27
+#define TXTBOX4_PKEY 28
+#define TIJD_PKEY 29
+#define BOX1_PKEY 30
+#define BOX2_PKEY 31
+#define BOX3_PKEY 32
+#define BOX4_PKEY 33
+#define BIG1_PKEY 34
+#define BIG2_PKEY 35
+#define BIG3_PKEY 36
+#define BIG4_PKEY 37
+
+/* typedef enum {
 	LANGUAGE_NL,
 	LANGUAGE_EN,
 	LANGUAGE_IT,
@@ -17,66 +37,26 @@ typedef enum {
   FN_DATDOW,
   FN_DOW,
   FN_EMPTY
-} BoxFunction;
+} BoxFunction;*/
 
-
-#define LANGUAGE_PKEY 0
-LanguageValue getLanguage();
-
-#define BOX1_PKEY 10
-BoxFunction getBox1();
-
-#define BOX2_PKEY 11
-BoxFunction getBox2();
-
-#define BOX3_PKEY 12
-BoxFunction getBox3();
-
-#define BOX4_PKEY 13
-BoxFunction getBox4();
-
-#define BIG1_PKEY 14
+int getLanguage();
+int getBox1();
+int getBox2();
+int getBox3();
+int getBox4();
 bool getBig1();
-
-#define BIG2_PKEY 15
 bool getBig2();
-
-#define BIG3_PKEY 16
 bool getBig3();
-
-#define BIG4_PKEY 17
 bool getBig4();
-
-#define UUR_PKEY 9
-bool getUur();
-
-#define COLBOX1_PKEY 1
-char* getColbox1();
-
-#define TXTBOX1_PKEY 5
-char* getTxtbox1();
-
-#define COLBOX2_PKEY 2
-char* getColbox2();
-
-#define TXTBOX2_PKEY 6
-char* getTxtbox2();
-
-#define COLBOX3_PKEY 3
-char* getColbox3();
-
-#define TXTBOX3_PKEY 7
-char* getTxtbox3();
-
-#define COLBOX4_PKEY 4
-char* getColbox4();
-
-#define TXTBOX4_PKEY 8
-char* getTxtbox4();
-
+bool getTijd();
+GColor getColorbox1();
+GColor getColorbox2();
+GColor getColorbox3();
+GColor getColorbox4();
+GColor getTxtcolorbox1();
+GColor getTxtcolorbox2();
+GColor getTxtcolorbox3();
+GColor getTxtcolorbox4();
 
 void config_in_received_handler(DictionaryIterator *iter, void *context); 
-
 void config_init();
-
-void config_deinit();
