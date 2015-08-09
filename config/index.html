@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>TileTime configuration</title>
+	<link rel="stylesheet" type="text/css" href="css/slate.min.css">
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+
+</head>
+<body>
+	<form id="configscreen" >
+		<div class="item-container">
+			<h1 class="title">TileTime</h1>
+		</div>
+		<div class="item-container">
+			<div class="item-container-content">
+				<div class="item">
+					With TileTime config you can change the look and feel of the TileTime
+					watchface. You can change the language, the colors, and the function
+					of the boxes of TileTime.  
+				</div>
+			</div>
+		</div>
+		<div class="item-container">
+			<div class="item-container-header"><b>General settings</b></div>
+			<div class="item-container-content">
+				<label class="item">
+					Language
+					<select id="language" name="language" dir='rtl' class="item-select">
+						<option class="item-select-option" value="0" selected>Dutch</option>
+						<option class="item-select-option" value="1">English</option>
+						<option class="item-select-option" value="2">Italian</option>
+						<option class="item-select-option" value="3">German</option>
+						<option class="item-select-option" value="4">French</option>
+						<option class="item-select-option" value="5">Spanish</option>
+					</select>
+				</label>
+				<label class="item">
+					24-hour format
+					<input id="tijd" type="checkbox" class="item-checkbox" name="tijd" checked>
+				</label>
+			</div>
+			<div class="item-container-footer">
+				These settings apply to the whole watchface.
+			</div>
+		</div>
+
+		<div class="item-container">
+			<div class="item-container-header"><b>Box1 settings</b></div>
+			<div class="item-container-content">
+				<label class="item">
+					Box function    						
+					<select id="box1" name="box1" dir='rtl' class="item-select">
+						<option class="item-select-option" value="0" selected>Hours</option>
+						<option class="item-select-option" value="1">Minutes</option>
+						<option class="item-select-option" value="2">Seconds</option>
+						<option class="item-select-option" value="3">Date</option>
+						<option class="item-select-option" value="6">Date + Day</option>
+						<option class="item-select-option" value="4">Day</option>
+						<option class="item-select-option" value="5">Empty</option>
+					</select>
+				</label>
+				<label class="item">
+					Big font
+					<input id="big1" type="checkbox" class="item-checkbox" name="big1" checked>
+				</label>
+				<label class="item">
+					Background color
+					<input id="colbox1" type="text" class="item-color item-color-normal" name="colbox1" value="0xFF5500" required>
+				</label>
+				<label class="item">
+					Text color
+					<input id="txtbox1" type="text" class="item-color item-color-normal" name="txtbox1" value="0xFFFFFF" required>
+				</label>
+			</div>
+			<div class="item-container-footer">
+				These settings apply only to the top left box.
+			</div>		
+		</div>
+
+		<div class="item-container">
+			<div class="item-container-header"><b>Box2 settings</b></div>
+			<div class="item-container-content">
+				<label class="item">
+					Box function    							
+					<select id="box2" name="box1" dir='rtl' class="item-select">
+						<option class="item-select-option" value="0">Hours</option>
+						<option class="item-select-option" value="1" selected>Minutes</option>
+						<option class="item-select-option" value="2">Seconds</option>
+						<option class="item-select-option" value="3">Date</option>
+						<option class="item-select-option" value="6">Date + Day of the week</option>
+						<option class="item-select-option" value="4">Day of the week</option>
+						<option class="item-select-option" value="5">Empty</option>
+					</select>
+				</label>
+				<label class="item">
+					Big font
+					<input id="big2" type="checkbox" class="item-checkbox" name="big2" checked>
+				</label>
+				<label class="item">
+					Background color
+					<input id="colbox2" type="text" class="item-color item-color-normal" name="colbox2" value="0x55AA00" required>
+				</label>
+				<label class="item">
+					Text color
+					<input id="txtbox2" type="text" class="item-color item-color-normal" name="txtbox2" value="0x000000" required>
+				</label>
+			</div>
+			<div class="item-container-footer">
+				These settings apply only to the top right box.
+			</div>		
+		</div>
+
+		<div class="item-container">
+			<div class="item-container-header"><b>Box3 settings</b></div>
+			<div class="item-container-content">
+				<label class="item">
+					Box function    						
+					<select id="box3" name="box1" dir='rtl' class="item-select">
+						<option class="item-select-option" value="0">Hours</option>
+						<option class="item-select-option" value="1">Minutes</option>
+						<option class="item-select-option" value="2">Seconds</option>
+						<option class="item-select-option" value="3" selected>Date</option>
+						<option class="item-select-option" value="6">Date + Day of the week</option>
+						<option class="item-select-option" value="4">Day of the week</option>
+						<option class="item-select-option" value="5">Empty</option>
+					</select>
+				</label>
+				<label class="item">
+					Big font
+					<input id="big3" type="checkbox" class="item-checkbox" name="big3" checked>
+				</label>
+				<label class="item">
+					Background color
+					<input id="colbox3" type="text" class="item-color item-color-normal" name="colbox3" value="0xFFAA00" required>
+				</label>
+			</div>
+			<div class="item-container-content">
+				<label class="item">
+					Text color
+					<input id="txtbox3" type="text" class="item-color item-color-normal" name="txtbox3" value="0x000000" required>
+				</label>
+			</div>
+			<div class="item-container-footer">
+				These settings apply only to the bottom left box.
+			</div>		
+		</div>
+
+		<div class="item-container">
+			<div class="item-container-header"><b>Box4 settings</b></div>
+			<div class="item-container-content">
+				<label class="item">
+					Box function    						
+					<select id="box4" name="box1" dir='rtl' class="item-select">
+						<option class="item-select-option" value="0">Hours</option>
+						<option class="item-select-option" value="1">Minutes</option>
+						<option class="item-select-option" value="2">Seconds</option>
+						<option class="item-select-option" value="3">Date</option>
+						<option class="item-select-option" value="6">Date + Day of the week</option>
+						<option class="item-select-option" value="4" selected>Day of the week</option>
+						<option class="item-select-option" value="5">Empty</option>
+					</select>
+				</label>
+				<label class="item">
+					Big font
+					<input id="big4" type="checkbox" class="item-checkbox" name="big4" checked>
+				</label>
+				<label class="item">
+					Background color
+					<input id="colbox4" type="text" class="item-color item-color-normal" name="colbox4" value="0x55AAFF" required>
+				</label>
+				<label class="item">
+					Text color
+					<input id="txtbox4" type="text" class="item-color item-color-normal" name="txtbox4" value="0xFFFFFF" required>
+				</label>
+			</div>
+			<div class="item-container-footer">
+				These settings apply only to the bottom right box.
+			</div>		
+		</div>
+
+		<div class="item-container">
+		  <div class="button-container">
+			<input id="submitButton" type="button" class="item-button" value="SUBMIT">
+		  </div>
+		</div>
+	</form>
+	<script type="text/javascript" src="js/slate.min.js"></script>
+	<script type="text/javascript" src="js/main.js"></script>
+</body>
+</html>
