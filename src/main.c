@@ -522,6 +522,12 @@ static void in_received_handler(DictionaryIterator *iter, void *context) {
   set_preferences(&box2,getBox2(),getBig2(),getTxtcolorbox2());
   set_preferences(&box3,getBox3(),getBig3(),getTxtcolorbox3());
   set_preferences(&box4,getBox4(),getBig4(),getTxtcolorbox4());
+  
+  if (is_box_function_second_used()) {
+    tick_timer_service_subscribe(SECOND_UNIT, tick_handler);
+  } else {
+    tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
+  }
 
   time_t now = time(NULL);
   struct tm *t = localtime(&now);
@@ -573,7 +579,11 @@ static void init() {
   initial_update_time(t);
   
   // Register with TickTimerService
-  tick_timer_service_subscribe(SECOND_UNIT, tick_handler);
+  if (is_box_function_second_used()) {
+    tick_timer_service_subscribe(SECOND_UNIT, tick_handler);
+  } else {
+    tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
+  }
 }
 
 // Cleanup

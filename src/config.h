@@ -60,3 +60,4 @@ GColor getTxtcolorbox4();
 
 void config_in_received_handler(DictionaryIterator *iter, void *context); 
 void config_init();
+bool is_box_function_second_used();

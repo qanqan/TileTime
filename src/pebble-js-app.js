@@ -2,7 +2,6 @@ var configSettings = null;
 
 Pebble.addEventListener("ready", function(e) {
 	console.log('PebbleKit JS ready');
-  //Pebble.showSimpleNotificationOnPebble("TileTime", "Watchface has loaded");
 });
 
 Pebble.addEventListener("showConfiguration", function (e) {

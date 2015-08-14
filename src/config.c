@@ -121,6 +121,14 @@ GColor getTxtcolorbox4(){return GColorFromHEX(_txtbox4);}
 int getTxtbox4(){return _txtbox4;}
 void setTxtbox4(int value){_txtbox4 = value;}
 
+bool is_box_function_second_used() {
+  if (_box1 == 2) return true;
+  if (_box2 == 2) return true;
+  if (_box3 == 2) return true;
+  if (_box4 == 2) return true;
+  return false;
+}
+
 // Set value for language attributes
 void configInt(DictionaryIterator *iter, int key, void (*function)(int)) {
   Tuple *tuple = dict_find(iter, key);
@@ -209,29 +217,9 @@ void cleanupStorage() {
  	if (persist_exists(VERSION_PKEY)) {
     int version = persist_read_int(VERSION_PKEY);
     if (version < 26) {
-      APP_LOG(APP_LOG_LEVEL_INFO, "Version 2.6 cleanup.");
       key = 0;
       do {
- 	      if (persist_exists(key)) {
-          if (key > 0 && key < 9) {
-	          char tmp_col[9]; 
-	          persist_read_string(key, tmp_col, 9);
-            unsigned int new_col;
-            if (0 == htoi(tmp_col,&new_col)) {
-              persist_write_int(key+20, new_col);
-              APP_LOG(APP_LOG_LEVEL_INFO, "Value change from %s to %d",tmp_col,new_col);
-            }
-          } if (key == 9 || key > 13) {
-            bool value = persist_read_bool(key);
-            persist_write_bool(key+20,value);            
-            APP_LOG(APP_LOG_LEVEL_INFO, "Value copied to new position %s",value ? "true" : "false");
-          } else {
-            int value = persist_read_int(key);
-            persist_write_int(key+20,value);
-            APP_LOG(APP_LOG_LEVEL_INFO, "Value copied to new position %d",value);
-          }
-          persist_delete(key);
-        }                                
+ 	      if (persist_exists(key)) persist_delete(key);
       } while (key++ < 18);
       setVersion(26);
       persist_write_int(VERSION_PKEY,26);

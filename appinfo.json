@@ -24,18 +24,23 @@
         "configurable"
     ],
     "companyName": "twitter@lankamp.org",
-    "longName": "TileTime NEW",
+    "longName": "TileTime",
     "projectType": "native",
     "resources": {
         "media": [
             {
-                "file": "fonts/s_dow_big_pm.otf",
-                "name": "dosis_extrabold_36",
+                "file": "fonts/s_ext_font.otf",
+                "name": "dosis_extrabold_60",
                 "type": "font"
             },
             {
-                "file": "fonts/s_dow_ext.otf",
-                "name": "dosis_extrabold_50",
+                "file": "fonts/s_dow_uk_big.otf",
+                "name": "dosis_bold_36",
+                "type": "font"
+            },
+            {
+                "file": "fonts/s_big_font.otf",
+                "name": "dosis_bold_55",
                 "type": "font"
             },
             {
@@ -49,18 +54,24 @@
                 "type": "font"
             },
             {
+                "file": "images/TileTime48.png",
+                "menuIcon": true,
+                "name": "TileTime48",
+                "type": "png"
+            },
+            {
+                "file": "fonts/s_dow_small.otf",
+                "name": "dosis_bold_30",
+                "type": "font"
+            },
+            {
                 "file": "fonts/s_dow_big.otf",
                 "name": "dosis_extrabold_44",
                 "type": "font"
             },
             {
-                "file": "fonts/s_dow_uk_big.otf",
-                "name": "dosis_bold_36",
-                "type": "font"
-            },
-            {
-                "file": "fonts/s_dow_small.otf",
-                "name": "dosis_bold_30",
+                "file": "fonts/s_dow_ext.otf",
+                "name": "dosis_extrabold_50",
                 "type": "font"
             },
             {
@@ -69,29 +80,18 @@
                 "type": "font"
             },
             {
-                "file": "fonts/s_big_font.otf",
-                "name": "dosis_bold_55",
+                "file": "fonts/s_dow_big_pm.otf",
+                "name": "dosis_extrabold_36",
                 "type": "font"
-            },
-            {
-                "file": "fonts/s_ext_font.otf",
-                "name": "dosis_extrabold_60",
-                "type": "font"
-            },
-            {
-                "file": "images/TileTime48.png",
-                "menuIcon": true,
-                "name": "TileTime48",
-                "type": "png"
             }
         ]
     },
     "sdkVersion": "3",
-    "shortName": "TileTime NEW",
+    "shortName": "TileTime",
     "targetPlatforms": [
         "basalt"
     ],
-    "uuid": "a8614a72-2527-4e28-be67-127f425c5cf8",
+    "uuid": "688249f2-ec7e-4b3d-9366-e6ad9602b755",
     "versionLabel": "2.6",
     "watchapp": {
         "watchface": true
